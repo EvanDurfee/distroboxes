@@ -18,5 +18,5 @@ dnf swap ffmpeg-free ffmpeg --allowerasing -y
 # dnf update @multimedia --setopt="install_weak_deps=False" --exclude=PackageKit-gstreamer-plugin -y
 # Install intel and amd drivers
 dnf install -y intel-media-driver
-dnf swap mesa-va-drivers mesa-va-drivers-freeworld
-dnf swap mesa-vdpau-drivers mesa-vdpau-drivers-freeworld
+dnf swap -y mesa-va-drivers mesa-va-drivers-freeworld
+dnf swap -y mesa-vdpau-drivers mesa-vdpau-drivers-freeworld
