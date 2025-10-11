@@ -3,8 +3,8 @@ FROM quay.io/fedora/fedora-toolbox:latest
 LABEL com.github.containers.toolbox="false"
 
 # Copy the setup scripts and package list
-COPY ../scripts/fedora-rpmfusion-base.sh /
+COPY ../scripts/fedora-rpmfusion-toolbox.sh /
 
 # Run the setup scripts
-RUN /fedora-rpmfusion-base.sh \
-	&& rm /fedora-rpmfusion-base.sh
+RUN /fedora-rpmfusion-toolbox.sh \
+	&& rm /fedora-rpmfusion-toolbox.sh
