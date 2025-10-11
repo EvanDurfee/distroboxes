@@ -6,5 +6,6 @@ LABEL com.github.containers.toolbox="false"
 COPY ../scripts/fedora-rpmfusion-toolbox.sh /
 
 # Run the setup scripts
-RUN /fedora-rpmfusion-toolbox.sh \
+RUN chmod +x fedora-rpmfusion-toolbox.sh \
+	&& /fedora-rpmfusion-toolbox.sh \
 	&& rm /fedora-rpmfusion-toolbox.sh
