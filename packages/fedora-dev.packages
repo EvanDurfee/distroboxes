@@ -1,0 +1,24 @@
+zsh
+tmux
+ripgrep
+fd-find
+bat
+git-delta
+fzf
+curl
+wget
+jq
+just
+btop
+wl-clipboard
+zoxide
+
+java
+golang
+golangci-lint
+
+podman
+docker
+# Latest kubectl is managed in script
+# kubernetes1.34-client
+helm

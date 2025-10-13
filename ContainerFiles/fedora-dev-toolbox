@@ -1,0 +1,12 @@
+FROM ghcr.io/evandurfee/fedora-rpmfusion-toolbox:latest
+
+LABEL com.github.containers.toolbox="true"
+
+# Copy the setup scripts and package list
+COPY ../packages/fedora-dev.packages /
+COPY ../scripts/fedora-dev.sh /	
+
+# Run the setup scripts
+RUN chmod +x fedora-dev.sh \
+	&& /fedora-dev.sh \
+	&& rm fedora-dev.sh fedora-dev.packages
