@@ -7,6 +7,6 @@ COPY ../packages/fedora-dev.packages /
 COPY ../scripts/fedora-dev.sh /	
 
 # Run the setup scripts
-RUN chmod +x fedora-dev.sh \
+RUN chmod +x /fedora-dev.sh \
 	&& /fedora-dev.sh \
-	&& rm fedora-dev.sh fedora-dev.packages
+	&& rm /fedora-dev.sh /fedora-dev.packages
