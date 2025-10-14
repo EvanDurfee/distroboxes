@@ -15,6 +15,6 @@ apt upgrade -y
 grep -v '^#' ./signal.packages | xargs apt install -y
 
 # Add distrobox shims
-mkdir -p /run/dbus
-ln -fs /run/host/run/dbus/system_bus_socket /run/dbus
-ln -fs /usr/bin/distrobox-host-exec /usr/local/bin/xdg-open
+# mkdir -p /run/dbus
+# ln -fs /run/host/run/dbus/system_bus_socket /run/dbus
+# ln -fs /usr/bin/distrobox-host-exec /usr/local/bin/xdg-open
