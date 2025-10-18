@@ -11,6 +11,15 @@ dnf search 'kubernetes*-client' | grep -E 'kubernetes1\.[0-9]+-client' --only-ma
 # Install packages
 grep -v '^#' ./fedora-dev.packages | xargs dnf install -y
 
+# Install python and pip
+# python_versions=(python3.6 python3.9 python3.10 python3.11 python3.12 python3.13 python3.14)
+# for python_version in "${python_version[@]}"; do
+for python_version in "$(dnf search 'python3.*' | grep --perl-regexp 'python3\.[1-9][0-9]?' --only-matching | sort --version-sort --unique)"; do
+	dnf install -y "$python_version"
+	"$python_version" -m ensurepip
+done
+
+
 # Add distrobox shims
 # mkdir -p /run/dbus
 # ln -fs /run/host/run/dbus/system_bus_socket /run/dbus

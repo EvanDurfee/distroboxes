@@ -13,12 +13,17 @@ btop
 wl-clipboard
 zoxide
 
-java
-golang
-golangci-lint
-
 podman
 docker
 # Latest kubectl is managed in script
 # kubernetes1.34-client
 helm
+
+java
+
+golang
+golangci-lint
+
+ShellCheck
+
+# Python versions handled in script
