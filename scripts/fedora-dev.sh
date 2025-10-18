@@ -13,9 +13,10 @@ grep -v '^#' ./fedora-dev.packages | xargs dnf install -y
 
 # Install python and pip
 # python_versions=(python3.6 python3.9 python3.10 python3.11 python3.12 python3.13 python3.14)
-# for python_version in "${python_version[@]}"; do
-for python_version in "$(dnf search 'python3.*' | grep --perl-regexp 'python3\.[1-9][0-9]?' --only-matching | sort --version-sort --unique)"; do
-	dnf install -y "$python_version"
+python_versions=($(dnf search 'python3.*' | grep --perl-regexp 'python3\.[1-9][0-9]?' --only-matching | sort --version-sort --unique))
+dnf install -y "${python_versions[@]}"
+for python_version in "${python_versions[@]}"; do
+	echo "Install pip for $python_version"
 	"$python_version" -m ensurepip
 done
 
