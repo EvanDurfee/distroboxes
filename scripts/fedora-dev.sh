@@ -19,6 +19,8 @@ for python_version in "$(dnf search 'python3.*' | grep --perl-regexp 'python3\.[
 	"$python_version" -m ensurepip
 done
 
+# Clean up the cache to save on image size
+dnf clean all
 
 # Add distrobox shims
 # mkdir -p /run/dbus

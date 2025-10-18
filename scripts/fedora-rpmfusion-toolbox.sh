@@ -21,5 +21,8 @@ dnf install -y intel-media-driver
 dnf swap -y mesa-va-drivers mesa-va-drivers-freeworld
 dnf swap -y mesa-vdpau-drivers mesa-vdpau-drivers-freeworld
 
+# Clean the cache
+dnf clean all
+
 # gstreamer (adds ~1G, is any of this needed?)
 # dnf install gstreamer1-plugins-{bad-*,good-*,base} gstreamer1-plugin-openh264 gstreamer1-libav --exclude=gstreamer1-plugins-bad-free-devel
