@@ -1,0 +1,13 @@
+FROM quay.io/toolbx-images/alpine-toolbox:edge
+
+LABEL com.github.containers.toolbox="true"
+
+# Copy the setup scripts and package list
+COPY ../packages/cosign.packages /
+COPY ../scripts/cosign.sh /
+
+# Run the setup scripts
+RUN chmod +x cosign.sh \
+	&& /cosign.sh \
+	&& rm /cosign.sh /cosign.packages
+

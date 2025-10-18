@@ -32,6 +32,7 @@ jobs:
           - calibre-toolbox
           - signal-toolbox
           - fedora-dev-toolbox
+          - cosign-toolbox
     steps:
       # Clone code to runner
       - name: Checkout
