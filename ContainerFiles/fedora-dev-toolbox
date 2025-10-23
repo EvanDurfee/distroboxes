@@ -18,3 +18,11 @@ RUN /usr/local/bin/jetbrains-ide-setup \
 	--install-dir /opt/Jetbrains \
 	--desktop-dir /usr/local/share/applications \
 	idea
+RUN /usr/local/bin/jetbrains-ide-setup \
+	--install-dir /opt/Jetbrains \
+	--desktop-dir /usr/local/share/applications \
+	pycharm
+RUN /usr/local/bin/jetbrains-ide-setup \
+	--install-dir /opt/Jetbrains \
+	--desktop-dir /usr/local/share/applications \
+	goland

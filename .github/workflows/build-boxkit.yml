@@ -54,7 +54,7 @@ jobs:
         with:
           # this might remove tools that are actually needed,
           # if set to "true" but frees about 6 GB
-          tool-cache: false
+          tool-cache: true
           # all of these default to true, but feel free to set to
           # "false" if necessary for your workflow
           android: true
@@ -64,13 +64,34 @@ jobs:
           docker-images: true
           swap-storage: true
 
-      - name: free disk space
+      - name: Aggressive cleanup
         run: |
-          sudo swapoff -a
-          sudo rm -f /swapfile
-          sudo apt clean
-          docker system prune --all --force
-          # docker rmi $(docker image ls -aq)
+          # Remove Java (JDKs)
+          sudo rm -rf /usr/lib/jvm
+          # Remove .NET SDKs
+          sudo rm -rf /usr/share/dotnet
+          # Remove Swift toolchain
+          sudo rm -rf /usr/share/swift
+          # Remove Haskell (GHC)
+          sudo rm -rf /usr/local/.ghcup
+          # Remove Rust
+          sudo rm -rf /home/runner/.rustup
+          # Remove Julia
+          sudo rm -rf /usr/local/julia*
+          # Remove Android SDKs
+          sudo rm -rf /usr/local/lib/android
+          # Remove Chromium (optional if not using for browser tests)
+          sudo rm -rf /usr/local/share/chromium
+          # Remove Microsoft/Edge and Google Chrome builds
+          sudo rm -rf /opt/microsoft /opt/google
+          # Remove Azure CLI
+          sudo rm -rf /opt/az
+          # Remove PowerShell
+          sudo rm -rf /usr/local/share/powershell
+          # Remove CodeQL and other toolcaches
+          sudo rm -rf /opt/hostedtoolcache
+          docker system prune -af || true
+          docker builder prune -af || true
           df -h
 
       # Build image using Buildah action
