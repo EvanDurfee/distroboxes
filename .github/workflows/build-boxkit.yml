@@ -26,6 +26,7 @@ jobs:
       id-token: write
     strategy:
       fail-fast: false
+      max-parallel: 1
       matrix:
         containerfile:
           - fedora-rpmfusion-toolbox
