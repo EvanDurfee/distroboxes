@@ -26,7 +26,7 @@ jobs:
       id-token: write
     strategy:
       fail-fast: false
-      max-parallel: 1
+#      max-parallel: 1
       matrix:
         containerfile:
           - fedora-rpmfusion-toolbox
@@ -48,6 +48,30 @@ jobs:
             ${{ matrix.containerfile }}
           labels: |
             io.artifacthub.package.readme-url=https://raw.githubusercontent.com/ublue-os/boxkit/main/README.md
+
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be
+        with:
+          # this might remove tools that are actually needed,
+          # if set to "true" but frees about 6 GB
+          tool-cache: false
+          # all of these default to true, but feel free to set to
+          # "false" if necessary for your workflow
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
+      - name: free disk space
+        run: |
+          sudo swapoff -a
+          sudo rm -f /swapfile
+          sudo apt clean
+          docker system prune --all --force
+          # docker rmi $(docker image ls -aq)
+          df -h
 
       # Build image using Buildah action
       - name: Build Image
