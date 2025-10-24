@@ -26,14 +26,15 @@ jobs:
       id-token: write
     strategy:
       fail-fast: false
-#      max-parallel: 1
+      max-parallel: 1
       matrix:
         containerfile:
           - fedora-rpmfusion-toolbox
+          - fedora-dev-toolbox
+          - fedora-ide-toolbox
+          - cosign-toolbox
           - calibre-toolbox
           - signal-toolbox
-          - fedora-dev-toolbox
-          - cosign-toolbox
     steps:
       # Clone code to runner
       - name: Checkout
@@ -64,35 +65,36 @@ jobs:
           docker-images: true
           swap-storage: true
 
-      - name: Aggressive cleanup
-        run: |
-          # Remove Java (JDKs)
-          sudo rm -rf /usr/lib/jvm
-          # Remove .NET SDKs
-          sudo rm -rf /usr/share/dotnet
-          # Remove Swift toolchain
-          sudo rm -rf /usr/share/swift
-          # Remove Haskell (GHC)
-          sudo rm -rf /usr/local/.ghcup
-          # Remove Rust
-          sudo rm -rf /home/runner/.rustup
-          # Remove Julia
-          sudo rm -rf /usr/local/julia*
-          # Remove Android SDKs
-          sudo rm -rf /usr/local/lib/android
-          # Remove Chromium (optional if not using for browser tests)
-          sudo rm -rf /usr/local/share/chromium
-          # Remove Microsoft/Edge and Google Chrome builds
-          sudo rm -rf /opt/microsoft /opt/google
-          # Remove Azure CLI
-          sudo rm -rf /opt/az
-          # Remove PowerShell
-          sudo rm -rf /usr/local/share/powershell
-          # Remove CodeQL and other toolcaches
-          sudo rm -rf /opt/hostedtoolcache
-          docker system prune -af || true
-          docker builder prune -af || true
-          df -h
+#      - name: Aggressive cleanup
+#        run: |
+#          df -h
+#          # Remove Java (JDKs)
+#          sudo rm -rf /usr/lib/jvm
+#          # Remove .NET SDKs
+#          sudo rm -rf /usr/share/dotnet
+#          # Remove Swift toolchain
+#          sudo rm -rf /usr/share/swift
+#          # Remove Haskell (GHC)
+#          sudo rm -rf /usr/local/.ghcup
+#          # Remove Rust
+#          sudo rm -rf /home/runner/.rustup
+#          # Remove Julia
+#          sudo rm -rf /usr/local/julia*
+#          # Remove Android SDKs
+#          sudo rm -rf /usr/local/lib/android
+#          # Remove Chromium (optional if not using for browser tests)
+#          sudo rm -rf /usr/local/share/chromium
+#          # Remove Microsoft/Edge and Google Chrome builds
+#          sudo rm -rf /opt/microsoft /opt/google
+#          # Remove Azure CLI
+#          sudo rm -rf /opt/az
+#          # Remove PowerShell
+#          sudo rm -rf /usr/local/share/powershell
+#          # Remove CodeQL and other toolcaches
+#          sudo rm -rf /opt/hostedtoolcache
+#          docker system prune -af || true
+#          docker builder prune -af || true
+#          df -h
 
       # Build image using Buildah action
       - name: Build Image
