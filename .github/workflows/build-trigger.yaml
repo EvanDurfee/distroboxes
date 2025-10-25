@@ -18,7 +18,7 @@ on:
 
 jobs:
   build_base_images:
-    name: Build and push image
+    name: Build and push base images
     permissions:
       contents: read
       packages: write
@@ -26,16 +26,42 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        containerfile:
-          - fedora-rpmfusion-toolbox
-          - cosign-toolbox
-          - calibre-toolbox
-          - signal-toolbox
+        build:
+          - containerfile: fedora-rpmfusion-toolbox
+          - containerfile: cosign-toolbox
+          - containerfile: calibre-toolbox
+          - containerfile: signal-toolbox
     uses: ./.github/workflows/build-image.yml
     with:
       event_name: ${{ github.event_name }}
-      containerfile: ${{ matrix.containerfile }}
-      image_name: ${{ matrix.containerfile }}
+      containerfile: ${{ matrix.build.containerfile }}
+      image_name: ${{ matrix.build.containerfile }}
       image_tags: latest
       large_image: false
+    secrets: inherit
+
+  build_dev_images:
+    needs:
+      - build_base_images
+    name: Build and push dev images
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        build:
+          - containerfile: fedora-dev-toolbox
+            large_image: false
+          - containerfile: fedora-ide-toolbox
+            large_image: true
+    uses: ./.github/workflows/build-image.yml
+    with:
+      event_name: ${{ github.event_name }}
+      containerfile: ${{ matrix.build.containerfile }}
+      image_name: ${{ matrix.build.containerfile }}
+      image_tags: latest
+      large_image: ${{ matrix.build.large_image }}
     secrets: inherit
