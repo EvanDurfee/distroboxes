@@ -36,7 +36,7 @@ jobs:
       event_name: ${{ github.event_name }}
       containerfile: ${{ matrix.build.containerfile }}
       image_name: ${{ matrix.build.containerfile }}
-      image_tags: latest
+      image_tags: ${{ github.event_name != 'pull_request' && 'latest' || 'testing' }}
       large_image: false
     secrets: inherit
 
@@ -62,6 +62,7 @@ jobs:
       event_name: ${{ github.event_name }}
       containerfile: ${{ matrix.build.containerfile }}
       image_name: ${{ matrix.build.containerfile }}
-      image_tags: latest
+      image_tags: ${{ github.event_name != 'pull_request' && 'latest' || 'testing' }}
+      base_image_tag: ${{ github.event_name != 'pull_request' && 'latest' || 'testing' }}
       large_image: ${{ matrix.build.large_image }}
     secrets: inherit

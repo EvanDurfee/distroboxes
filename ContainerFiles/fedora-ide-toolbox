@@ -4,7 +4,8 @@ COPY modules /modules
 COPY scripts/fedora-ide.sh /fedora-ide.sh
 COPY packages/fedora-ide.packages /fedora-ide.packages
 
-FROM ghcr.io/evandurfee/fedora-dev-toolbox:latest
+ARG BASE_IMAGE_TAG
+FROM ghcr.io/evandurfee/fedora-dev-toolbox:${BASE_IMAGE_TAG}
 
 LABEL com.github.containers.toolbox="true"
 
