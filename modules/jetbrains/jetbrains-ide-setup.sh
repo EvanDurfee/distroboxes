@@ -31,6 +31,7 @@ DEFAULT_SYSTEM_DESKTOP_DIR="/usr/local/share/applications"
 DEFAULT_SYSTEM_ICON_DIR="/usr/local/share/icons"
 DEFAULT_SYSTEM_BIN_DIR="/usr/local/bin"
 
+DEFAULT_KEYWORDS="JetBrains;IDE;code;"
 
 print_help () {
 	cat <<EOF
@@ -169,46 +170,55 @@ main() {
 		unset tool_name
 		unset tool_code
 		unset binary_name
+		unset keywords
 		case "$1" in
 			intellij | idea | java)
 				tool_name="IntelliJ IDEA"
 				tool_code=IU
 				binary_name=idea
+				keywords="${DEFAULT_KEYWORDS}${tool_code};java;groovy;kotlin;"
 				;;
 			pycharm | python)
 				tool_name="PyCharm"
 				tool_code=PY
 				binary_name=pycharm
+				keywords="${DEFAULT_KEYWORDS}${tool_code};python;javascript;typescript;"
 				;;
 			goland | go | golang)
 				tool_name="GoLand"
 				tool_code=GO
 				binary_name=goland
+				keywords="${DEFAULT_KEYWORDS}${tool_code};go;golang;"
 				;;
 			clion | c | "c++" | cpp)
 				tool_name="CLion"
 				tool_code=CL
 				binary_name=clion
+				keywords="${DEFAULT_KEYWORDS}${tool_code};c;c++;cpp;"
 				;;
 			rider | "c#" | "C#")
 				tool_name="Rider"
 				tool_code=RD
 				binary_name=rider
+				keywords="${DEFAULT_KEYWORDS}${tool_code};C#;F#;.NET;"
 				;;
 			rustrover | rust | rover)
 				tool_name="RustRover"
 				tool_code=RR
 				binary_name=rustrover
+				keywords="${DEFAULT_KEYWORDS}${tool_code};rust;"
 				;;
 			rubyminer | ruby)
 				tool_name="RubyMiner"
 				tool_code=RM
 				binary_name=rubyminer
+				keywords="${DEFAULT_KEYWORDS}${tool_code};ruby;"
 				;;
 			datagrip)
 				tool_name="DataGrip"
 				tool_code=DG
 				binary_name=datagrip
+				keywords="${DEFAULT_KEYWORDS}${tool_code};"
 				;;
 			*)
 				echo "Unrecognized tool '$1'" >&2
@@ -218,7 +228,7 @@ main() {
 			install_jetbrains_ide "$install_dir" "$tool_name" "$binary_name" "$tool_code" "$arch"
 		fi
 		if $do_add_desktop_entry; then
-			add_desktop_entry "$desktop_dir" "$icon_dir" "$install_dir" "$tool_name" "$binary_name"
+			add_desktop_entry "$desktop_dir" "$icon_dir" "$install_dir" "$tool_name" "$binary_name" "$keywords"
 		fi
 		if $do_link_bin; then
 			ln --symbolic --force --no-target-directory "$install_dir"/"$binary_name"/bin/"$binary_name" "$bin_dir"/"$binary_name"
@@ -233,6 +243,7 @@ add_desktop_entry() {
 	install_dir="$1"; shift
 	tool_name="$1"; shift
 	binary_name="$1"; shift
+	keywords="$1"; shift
 
 	# copy desktop icon
 	mkdir -p "$icon_dir"
@@ -248,6 +259,7 @@ Exec="${install_dir}/${binary_name}/bin/${binary_name}" %u
 Version=1.0
 Type=Application
 Categories=Development;IDE;
+Keywords=$keywords
 Terminal=false
 # Icon=${install_dir}/${binary_name}/bin/${binary_name}.svg
 Icon=${binary_name}
