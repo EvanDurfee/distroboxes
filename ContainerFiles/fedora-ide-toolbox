@@ -1,4 +1,5 @@
 # Allow build scripts to be referenced without being copied into the final image
+ARG BASE_IMAGE_TAG
 FROM scratch AS ctx
 COPY modules /modules
 COPY scripts/fedora-ide.sh /fedora-ide.sh
@@ -6,6 +7,10 @@ COPY packages/fedora-ide.packages /fedora-ide.packages
 
 ARG BASE_IMAGE_TAG
 FROM ghcr.io/evandurfee/fedora-dev-toolbox:${BASE_IMAGE_TAG}
+
+RUN echo Base image tag is ${BASE_IMAGE_TAG}
+
+
 
 LABEL com.github.containers.toolbox="true"
 
@@ -16,17 +21,36 @@ RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
     /usr/bin/bash /ctx/fedora-ide.sh
 
 RUN /usr/local/bin/jetbrains-ide-setup \
-	--install-dir /opt/Jetbrains \
-	--desktop-dir /usr/local/share/applications \
-	--bin-dir /usr/local/bin \
+	--install-dir=/opt/JetBrains/apps \
+	--desktop-dir=/usr/share/applications \
+	--icon-dir=/usr/share/icons \
+	--bin-dir=/usr/bin \
 	idea
+
 RUN /usr/local/bin/jetbrains-ide-setup \
-	--install-dir /opt/Jetbrains \
-	--desktop-dir /usr/local/share/applications \
-	--bin-dir /usr/local/bin \
-	pycharm
+	--install-dir=/opt/JetBrains/apps \
+	--desktop-dir=/usr/share/applications \
+	--icon-dir=/usr/share/icons \
+	--bin-dir=/usr/bin \
+	clion
+
 RUN /usr/local/bin/jetbrains-ide-setup \
-	--install-dir /opt/Jetbrains \
-	--desktop-dir /usr/local/share/applications \
-	--bin-dir /usr/local/bin \
+	--install-dir=/opt/JetBrains/apps \
+	--desktop-dir=/usr/share/applications \
+	--icon-dir=/usr/share/icons \
+	--bin-dir=/usr/bin \
 	goland
+
+RUN /usr/local/bin/jetbrains-ide-setup \
+	--install-dir=/opt/JetBrains/apps \
+	--desktop-dir=/usr/share/applications \
+	--icon-dir=/usr/share/icons \
+	--bin-dir=/usr/bin \
+	pycharm
+
+RUN /usr/local/bin/jetbrains-ide-setup \
+	--install-dir=/opt/JetBrains/apps \
+	--desktop-dir=/usr/share/applications \
+	--icon-dir=/usr/share/icons \
+	--bin-dir=/usr/bin \
+	rider
