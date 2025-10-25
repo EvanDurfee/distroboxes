@@ -4,7 +4,8 @@ COPY modules /modules
 COPY scripts/fedora-dev.sh /fedora-dev.sh
 COPY packages/fedora-dev.packages /fedora-dev.packages
 
-FROM ghcr.io/evandurfee/fedora-rpmfusion-toolbox:latest
+ARG BASE_IMAGE_TAG
+FROM ghcr.io/evandurfee/fedora-rpmfusion-toolbox:${BASE_IMAGE_TAG}
 
 LABEL com.github.containers.toolbox="true"
 
