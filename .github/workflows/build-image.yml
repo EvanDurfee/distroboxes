@@ -1,0 +1,157 @@
+on:
+  workflow_call:
+    inputs:
+      event_name:
+        description: 'Include the upstream trigger type'
+        required: true
+        type: string
+      containerfile:
+        required: true
+        type: string
+      image_name:
+        required: true
+        type: string
+      image_tags:
+        required: false
+        type: string
+        default: 'latest'
+      large_image:
+        description: 'Require allocation of extra space for a large image (slow)'
+        required: false
+        type: boolean
+        default: true
+
+env:
+#    IMAGE_TAGS: latest
+    IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
+
+jobs:
+  push-ghcr:
+    name: Build and push image
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    strategy:
+      fail-fast: true
+    steps:
+      # Clone code to runner
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
+      # Build metadata
+      - name: Image Metadata
+        uses: docker/metadata-action@c1e51972afc2121e065aed6d45c65596fe445f3f # v5
+        id: meta
+        with:
+          images: |
+            ${{ inputs.containerfile }}
+          labels: |
+            io.artifacthub.package.readme-url=https://raw.githubusercontent.com/ublue-os/boxkit/main/README.md
+
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be
+        if: ${{ inputs.large_image }}
+        with:
+          # this might remove tools that are actually needed,
+          # if set to "true" but frees about 6 GB
+          tool-cache: true
+          # all of these default to true, but feel free to set to
+          # "false" if necessary for your workflow
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
+#      - name: Aggressive cleanup
+#        run: |
+#          df -h
+#          # Remove Java (JDKs)
+#          sudo rm -rf /usr/lib/jvm
+#          # Remove .NET SDKs
+#          sudo rm -rf /usr/share/dotnet
+#          # Remove Swift toolchain
+#          sudo rm -rf /usr/share/swift
+#          # Remove Haskell (GHC)
+#          sudo rm -rf /usr/local/.ghcup
+#          # Remove Rust
+#          sudo rm -rf /home/runner/.rustup
+#          # Remove Julia
+#          sudo rm -rf /usr/local/julia*
+#          # Remove Android SDKs
+#          sudo rm -rf /usr/local/lib/android
+#          # Remove Chromium (optional if not using for browser tests)
+#          sudo rm -rf /usr/local/share/chromium
+#          # Remove Microsoft/Edge and Google Chrome builds
+#          sudo rm -rf /opt/microsoft /opt/google
+#          # Remove Azure CLI
+#          sudo rm -rf /opt/az
+#          # Remove PowerShell
+#          sudo rm -rf /usr/local/share/powershell
+#          # Remove CodeQL and other toolcaches
+#          sudo rm -rf /opt/hostedtoolcache
+#          docker system prune -af || true
+#          docker builder prune -af || true
+#          df -h
+
+      # Build image using Buildah action
+      - name: Build Image
+        id: build_image
+        uses: redhat-actions/buildah-build@7a95fa7ee0f02d552a32753e7414641a04307056 # v2
+        with:
+          containerfiles: |
+            ./ContainerFiles/${{ inputs.containerfile }}
+          image: ${{ inputs.image_name }}
+          tags: ${{ inputs.image_tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          oci: true
+
+      # Workaround bug where capital letters in your GitHub username make it impossible to push to GHCR.
+      # https://github.com/macbre/push-to-ghcr/issues/12
+      - name: Lowercase Registry
+        id: registry_case
+        uses: ASzc/change-string-case-action@d0603cd0a7dd490be678164909f65c7737470a7f # v6
+        with:
+          string: ${{ env.IMAGE_REGISTRY }}
+
+      # Push the image to GHCR (Image Registry)
+      - name: Push To GHCR
+        uses: redhat-actions/push-to-registry@5ed88d269cf581ea9ef6dd6806d01562096bee9c # v2
+        if: ${{ inputs.event_name != 'pull_request' }}
+        id: push
+        env:
+          REGISTRY_USER: ${{ github.actor }}
+          REGISTRY_PASSWORD: ${{ github.token }}
+        with:
+          image: ${{ steps.build_image.outputs.image }}
+          tags: ${{ steps.build_image.outputs.tags }}
+          registry: ${{ steps.registry_case.outputs.lowercase }}
+          username: ${{ env.REGISTRY_USER }}
+          password: ${{ env.REGISTRY_PASSWORD }}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Sign container
+      - name: Install cosign
+        uses: sigstore/cosign-installer@d7543c93d881b35a8faa02e8e3605f69b7a1ce62 # v3.10.0
+
+      - name: Sign container image
+        if: ${{ inputs.event_name != 'pull_request' }}
+        run: |
+          cosign sign -y --key env://COSIGN_PRIVATE_KEY ${{ steps.registry_case.outputs.lowercase }}/${{ inputs.image_name }}@${TAGS}
+        env:
+          TAGS: ${{ steps.push.outputs.digest }}
+          COSIGN_EXPERIMENTAL: false
+          COSIGN_PRIVATE_KEY: ${{ secrets.SIGNING_SECRET }}
+
+      - name: Echo outputs
+        run: |
+          echo "${{ toJSON(steps.push.outputs) }}"

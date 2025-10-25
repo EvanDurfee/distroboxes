@@ -1,0 +1,41 @@
+name: build-all
+on:
+  workflow_dispatch: # allow manually triggering builds
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+    paths-ignore: # don't rebuild on documentation change
+      - '**.md'
+  schedule:
+    - cron: '0 0 * * TUE'
+
+#env:
+#    IMAGE_TAGS: latest
+#    IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
+
+jobs:
+  build_base_images:
+    name: Build and push image
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        containerfile:
+          - fedora-rpmfusion-toolbox
+          - cosign-toolbox
+          - calibre-toolbox
+          - signal-toolbox
+    uses: ./.github/workflows/build-image.yml
+    with:
+      event_name: ${{ github.event_name }}
+      containerfile: ${{ matrix.containerfile }}
+      image_name: ${{ matrix.containerfile }}
+      image_tags: latest
+      large_image: false
+    secrets: inherit
