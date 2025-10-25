@@ -15,4 +15,4 @@ fi
 dnf clean all
 
 # Copy over jetbrains installer
-#cp /ctx/modules/jetbrains/jetbrains-ide-setup.sh /usr/local/bin/jetbrains-ide-setup
+# cp /ctx/modules/jetbrains/jetbrains-ide-setup.sh /usr/local/bin/jetbrains-ide-setup
