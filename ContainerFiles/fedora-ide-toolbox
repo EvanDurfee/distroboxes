@@ -17,12 +17,15 @@ RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
 RUN /usr/local/bin/jetbrains-ide-setup \
 	--install-dir /opt/Jetbrains \
 	--desktop-dir /usr/local/share/applications \
+	--bin-dir /usr/local/bin \
 	idea
 RUN /usr/local/bin/jetbrains-ide-setup \
 	--install-dir /opt/Jetbrains \
 	--desktop-dir /usr/local/share/applications \
+	--bin-dir /usr/local/bin \
 	pycharm
 RUN /usr/local/bin/jetbrains-ide-setup \
 	--install-dir /opt/Jetbrains \
 	--desktop-dir /usr/local/share/applications \
+	--bin-dir /usr/local/bin \
 	goland
