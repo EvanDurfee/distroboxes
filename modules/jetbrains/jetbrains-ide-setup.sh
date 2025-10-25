@@ -21,8 +21,8 @@ _exit () {
 trap '_exit 7' SIGINT SIGTERM SIGHUP
 trap '_exit $?' EXIT
 
-DEFAULT_INSTALL_DIR="${XDG_DATA_DIR:-"${HOME}"/.local/share}/JetBrains/apps"
-DEFAULT_DESKTOP_DIR="${XDG_DATA_DIR:-"${HOME}"/.local/share}/applications"
+DEFAULT_INSTALL_DIR="${XDG_DATA_HOME:-"${HOME}"/.local/share}/JetBrains/apps"
+DEFAULT_DESKTOP_DIR="${XDG_DATA_HOME:-"${HOME}"/.local/share}/applications"
 DEFAULT_BIN_DIR="${HOME}/.local/bin"
 
 
