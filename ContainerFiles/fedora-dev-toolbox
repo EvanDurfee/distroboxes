@@ -1,4 +1,5 @@
 # Allow build scripts to be referenced without being copied into the final image
+ARG BASE_IMAGE_TAG
 FROM scratch AS ctx
 COPY modules /modules
 COPY scripts/fedora-dev.sh /fedora-dev.sh
