@@ -36,6 +36,8 @@ tools:
   clion (CLion) for C/C++
   rider (Rider) for C\# and .NET
   rustrover (RustRover) for rust
+  rubyminer (RubyMiner) for ruby
+  datagrip (DataGrip) for databases
 
 options:
   -d, --install-dir DIR    directory to install to (default: ~/.local/share/JetBrains/apps)
@@ -167,15 +169,15 @@ add_desktop_entry() {
 
 	cat <<EOF | tee "$desktop_dir"/"$binary_name".desktop >/dev/null
 [Desktop Entry]
-Name=\"${tool_name}\"
-Exec=\"${install_dir}/${binary_name}/bin/${binary_name}\" %u
+Name="${tool_name}"
+Exec="${install_dir}/${binary_name}/bin/${binary_name}" %u
 Version=1.0
 Type=Application
 Categories=Development;IDE;
 Terminal=false
-Icon=\"${install_dir}/${binary_name}/bin/${binary_name}.svg\"
-Comment=\"JetBrains ${tool_name} IDE\"
-StartupWMClass=\"jetbrains-${binary_name}\"
+Icon="${install_dir}/${binary_name}/bin/${binary_name}.svg"
+Comment="JetBrains ${tool_name} IDE"
+StartupWMClass="jetbrains-${binary_name}"
 StartupNotify=true
 EOF
 }
