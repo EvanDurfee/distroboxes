@@ -21,6 +21,11 @@ _exit () {
 trap '_exit 7' SIGINT SIGTERM SIGHUP
 trap '_exit $?' EXIT
 
+DEFAULT_INSTALL_DIR="${XDG_DATA_DIR:-"${HOME}"/.local/share}/JetBrains/apps"
+DEFAULT_DESKTOP_DIR="${XDG_DATA_DIR:-"${HOME}"/.local/share}/applications"
+DEFAULT_BIN_DIR="${HOME}/.local/bin"
+
+
 print_help () {
 	cat <<EOF
 Usage: $PROG [OPTION...] TOOL...
@@ -40,29 +45,38 @@ tools:
   datagrip (DataGrip) for databases
 
 options:
-  -d, --install-dir DIR    directory to install to (default: ~/.local/share/JetBrains/apps)
-      --desktop-dir DIR    directory to install desktop file to (default: ~/.local/share/applications)
+  -d, --install-dir DIR    directory to install to (default: "$DEFAULT_INSTALL_DIR")
+      --desktop-dir DIR    directory to install desktop file to (default: "$DEFAULT_DESKTOP_DIR")
+      --bin-dir     DIR    directory from which to symlink the editor (default: "$DEFAULT_BIN_DIR")
       --no-install         skip tool installation
       --no-desktop         skip desktop (launcher) installation
+      --no-bin             skip adding symlink to bin dir
   -h, --help               print usage information and exit
 
 examples:
 
-$PROG --install-dir=/opt/Jetbrains/apps --desktop-dir=/usr/local/share/applications pycharm goland
+User install with no bin added to "${DEFAULT_BIN_DIR}":
+  $PROG --no-bin pycharm goland
+
+System install:
+  $PROG --install-dir=/opt/Jetbrains/apps \\
+          --desktop-dir=/usr/local/share/applications \\
+          --bin-dir=/usr/local/bin \\
+          pycharm goland
 EOF
 }
 
 main() {
 	# Requires gnu enhanced getopt
-	ARGS=$(getopt --name "$PROG" --long 'help,install-dir:,desktop-dir:,no-desktop,no-install' --options 'hd:' -- "$@")
+	ARGS=$(getopt --name "$PROG" --long 'help,install-dir:,desktop-dir:,bin-dir:,no-desktop,no-install,no-bin' --options 'hd:' -- "$@")
 	eval set -- "$ARGS"
 
-	echo "Done evaluating args"
-
-	install_dir="${HOME}/.local/share/JetBrains/apps"
-	desktop_dir="${HOME}/.local/share/applications"
+	install_dir="$DEFAULT_INSTALL_DIR"
+	desktop_dir="$DEFAULT_DESKTOP_DIR"
+	bin_dir="$DEFAULT_BIN_DIR"
 	do_add_desktop_entry=true
 	do_install=true
+	do_link_bin=true
 	while [ $# -gt 0 ]; do
 		case "$1" in
 			-h | --help)
@@ -77,11 +91,18 @@ main() {
 				shift
 				desktop_dir="$1"
 				;;
+			--bin-dir)
+				shift
+				bin_dir="$1"
+				;;
 			--no-desktop)
 				do_add_desktop_entry=false
 				;;
 			--no-install)
 				do_install=false
+				;;
+			--no-bin)
+				do_link_bin=false
 				;;
 			--)
 				shift
@@ -96,8 +117,8 @@ main() {
 		exit 1
 	fi
 
-	if ! $do_install && ! $do_add_desktop_entry; then
-		echo "Install and desktop entry disabled, nothing to do" >&2
+	if ! $do_install && ! $do_add_desktop_entry && ! $do_link_bin; then
+		echo "Install, desktop entry, and bin disabled; nothing to do" >&2
 		exit 1
 	fi
 
@@ -156,6 +177,9 @@ main() {
 		fi
 		if $do_add_desktop_entry; then
 			add_desktop_entry "$desktop_dir"  "$install_dir" "$tool_name" "$binary_name"
+		fi
+		if $do_link_bin; then
+			ln --symbolic --force --no-target-directory "$install_dir"/"$binary_name"/bin/"$binary_name" "$bin_dir"/"$binary_name"
 		fi
 		shift
 	done
