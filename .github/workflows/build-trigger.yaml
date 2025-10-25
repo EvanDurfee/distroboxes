@@ -55,8 +55,9 @@ jobs:
         build:
           - containerfile: fedora-dev-toolbox
             large_image: false
-          - containerfile: fedora-ide-toolbox
-            large_image: true
+# Disabled, too big for github actions (~28 GB, but requires more than double that during build)
+#          - containerfile: fedora-ide-toolbox
+#            large_image: true
     uses: ./.github/workflows/build-image.yml
     with:
       event_name: ${{ github.event_name }}
