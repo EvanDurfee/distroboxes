@@ -23,12 +23,10 @@ trap '_exit $?' EXIT
 
 DEFAULT_USER_INSTALL_DIR="${XDG_DATA_HOME:-"${HOME}"/.local/share}/JetBrains/apps"
 DEFAULT_USER_DESKTOP_DIR="${XDG_DATA_HOME:-"${HOME}"/.local/share}/applications"
-DEFAULT_USER_ICON_DIR="${XDG_DATA_HOME:-"${HOME}"/.local/share}/icons"
 DEFAULT_USER_BIN_DIR="${HOME}/.local/bin"
 
 DEFAULT_SYSTEM_INSTALL_DIR="/opt/JetBrains/apps"
 DEFAULT_SYSTEM_DESKTOP_DIR="/usr/local/share/applications"
-DEFAULT_SYSTEM_ICON_DIR="/usr/local/share/icons"
 DEFAULT_SYSTEM_BIN_DIR="/usr/local/bin"
 
 DEFAULT_KEYWORDS="JetBrains;IDE;code;"
@@ -55,8 +53,8 @@ options:
       --system             default to system-wide install directories
       --user               default to user install directories
       --no-install         skip tool installation
-      --only-install       only install the tool, skip desktop, icon, and bin setup
-      --no-desktop         skip desktop (launcher) and icon installation
+      --only-install       only install the tool, skip desktop and bin setup
+      --no-desktop         skip desktop (launcher) installation
       --no-bin             skip adding symlink to bin dir
   -h, --help               print usage information and exit
 
@@ -66,7 +64,6 @@ specified.
 install dirs:
   -d, --install-dir DIR    directory to install to (default: "$DEFAULT_USER_INSTALL_DIR")
       --desktop-dir DIR    directory to install desktop file to (default: "$DEFAULT_USER_DESKTOP_DIR")
-      --icon-dir    DIR    directory to install desktop icon file to (default: "$DEFAULT_USER_ICON_DIR")
       --bin-dir     DIR    directory from which to symlink the editor (default: "$DEFAULT_USER_BIN_DIR")
 
 examples:
@@ -81,12 +78,11 @@ EOF
 
 main() {
 	# Requires gnu enhanced getopt
-	ARGS=$(getopt --name "$PROG" --long 'help,user,system,install-dir:,desktop-dir:,icon-dir:,bin-dir:,no-install,only-install,no-desktop,no-bin' --options 'hd:' -- "$@")
+	ARGS=$(getopt --name "$PROG" --long 'help,user,system,install-dir:,desktop-dir:,bin-dir:,no-install,only-install,no-desktop,no-bin' --options 'hd:' -- "$@")
 	eval set -- "$ARGS"
 
 	install_dir=""
 	desktop_dir=""
-	icon_dir=""
 	bin_dir=""
 	default_to_user=true
 	do_install=true
@@ -111,10 +107,6 @@ main() {
 			--desktop-dir)
 				shift
 				desktop_dir="$1"
-				;;
-			--icon-dir)
-				shift
-				icon_dir="$1"
 				;;
 			--bin-dir)
 				shift
@@ -147,9 +139,6 @@ main() {
 	fi
 	if [ -z "$desktop_dir" ]; then
 		if $default_to_user; then desktop_dir="$DEFAULT_USER_DESKTOP_DIR"; else desktop_dir="$DEFAULT_SYSTEM_DESKTOP_DIR"; fi
-	fi
-	if [ -z "$icon_dir" ]; then
-		if $default_to_user; then icon_dir="$DEFAULT_USER_ICON_DIR"; else icon_dir="$DEFAULT_SYSTEM_ICON_DIR"; fi
 	fi
 	if [ -z "$bin_dir" ]; then
 		if $default_to_user; then bin_dir="$DEFAULT_USER_BIN_DIR"; else bin_dir="$DEFAULT_SYSTEM_BIN_DIR"; fi
@@ -228,7 +217,7 @@ main() {
 			install_jetbrains_ide "$install_dir" "$tool_name" "$binary_name" "$tool_code" "$arch"
 		fi
 		if $do_add_desktop_entry; then
-			add_desktop_entry "$desktop_dir" "$icon_dir" "$install_dir" "$tool_name" "$binary_name" "$keywords"
+			add_desktop_entry "$desktop_dir" "$install_dir" "$tool_name" "$binary_name" "$keywords"
 		fi
 		if $do_link_bin; then
 			ln --symbolic --force --no-target-directory "$install_dir"/"$binary_name"/bin/"$binary_name" "$bin_dir"/"$binary_name"
@@ -239,17 +228,10 @@ main() {
 
 add_desktop_entry() {
 	desktop_dir="$1"; shift
-	icon_dir="$1"; shift
 	install_dir="$1"; shift
 	tool_name="$1"; shift
 	binary_name="$1"; shift
 	keywords="$1"; shift
-
-	# copy desktop icon
-	mkdir -p "$icon_dir"
-	# In theory, we want scalable icons in $prefix/share/icons/hicolor/scalable/app/<app-name>.svg, but I was unable to get those to be used (perhaps because the application has no gtk application_id?).
-	# Best we can do is rely on the DE supporting .svg and reading it from the icon dir root (Gnome 49 does this, at least)
-	cp "${install_dir}"/"${binary_name}"/bin/"${binary_name}".svg --target-directory "$icon_dir"
 
 	# create desktop launcher
 	cat <<EOF | tee "$desktop_dir"/"$binary_name".desktop >/dev/null
@@ -261,8 +243,8 @@ Type=Application
 Categories=Development;IDE;
 Keywords=$keywords
 Terminal=false
-# Icon=${install_dir}/${binary_name}/bin/${binary_name}.svg
-Icon=${binary_name}
+Icon=${install_dir}/${binary_name}/bin/${binary_name}.svg
+# Icon=${binary_name}
 Comment=JetBrains ${tool_name} IDE
 StartupWMClass=jetbrains-${binary_name}
 StartupNotify=true
