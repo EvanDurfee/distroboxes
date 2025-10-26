@@ -37,7 +37,7 @@ jobs:
       containerfile: ${{ matrix.build.containerfile }}
       image_name: ${{ matrix.build.containerfile }}
       image_tags: ${{ github.event_name != 'pull_request' && 'latest' || 'testing' }}
-      large_image: false
+      large_image: true
     secrets: inherit
 
   build_dev_images:
