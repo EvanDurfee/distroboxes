@@ -54,7 +54,7 @@ jobs:
       matrix:
         build:
           - containerfile: fedora-dev-toolbox
-            large_image: false
+            large_image: true
 # Disabled, too big for github actions (~28 GB, but requires more than double that during build)
 #          - containerfile: fedora-ide-toolbox
 #            large_image: true
