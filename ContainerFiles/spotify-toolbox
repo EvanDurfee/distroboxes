@@ -1,0 +1,18 @@
+ARG TOOLBOX_NAME=spotify
+
+FROM scratch AS ctx
+ARG TOOLBOX_NAME
+
+COPY scripts/$TOOLBOX_NAME.sh /$TOOLBOX_NAME.sh
+COPY packages/$TOOLBOX_NAME.packages /$TOOLBOX_NAME.packages
+
+FROM quay.io/toolbx/ubuntu-toolbox:latest
+ARG TOOLBOX_NAME
+
+LABEL com.github.containers.toolbox="true"
+
+RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
+    --mount=type=cache,dst=/var/cache \
+    --mount=type=cache,dst=/var/log \
+    --mount=type=tmpfs,dst=/tmp \
+    /usr/bin/bash /ctx/$TOOLBOX_NAME.sh
