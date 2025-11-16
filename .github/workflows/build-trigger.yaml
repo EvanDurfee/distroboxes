@@ -31,13 +31,14 @@ jobs:
           - containerfile: cosign-toolbox
           - containerfile: calibre-toolbox
           - containerfile: signal-toolbox
+          - containerfile: spotify-toolbox
     uses: ./.github/workflows/build-image.yml
     with:
       event_name: ${{ github.event_name }}
       containerfile: ${{ matrix.build.containerfile }}
       image_name: ${{ matrix.build.containerfile }}
       image_tags: ${{ github.event_name != 'pull_request' && 'latest' || 'testing' }}
-      large_image: true
+      large_image: false
     secrets: inherit
 
   build_dev_images:
@@ -54,7 +55,7 @@ jobs:
       matrix:
         build:
           - containerfile: fedora-dev-toolbox
-            large_image: true
+            large_image: false
 # Disabled, too big for github actions (~28 GB, but requires more than double that during build)
 #          - containerfile: fedora-ide-toolbox
 #            large_image: true
